@@ -77,14 +77,14 @@
 			<a class="anchor" id="result"></a>
 
 			<div class="my-5" v-show="resultList.length > 0">
-				<ul class="nav nav-tabs mb-3">
+				<!-- <ul class="nav nav-tabs mb-3">
 					<li class="nav-item">
 						<a class="nav-link active" aria-current="page" href="#">Lista</a>
 					</li>
 					<li class="nav-item">
 						<a class="nav-link" href="#">Gráficos</a>
 					</li>
-				</ul>
+				</ul> -->
 
 				<h2>Lista de Endereços IP</h2>
 
@@ -99,12 +99,12 @@
 							</select>
 						</div>
 					</div>
-					<div class="col-12 d-grid d-lg-block">
+					<!-- <div class="col-12 d-grid d-lg-block">
 						<button type="button" class="btn btn-outline-secondary" data-bs-toggle="modal" data-bs-target="#exampleModal">Filtrar</button>
 					</div>
 					<div class="col-12 d-grid d-lg-block">
 						<button type="button" class="btn btn-outline-secondary" @click="exportExcel()">Exportar Excel</button>
-					</div>
+					</div> -->
 				</div>
 
 				<GMapMap ref="myMapRef" class="mt-3 mb-3" :center="mapCenter" :zoom="mapZoom" map-type-id="terrain" style="width: 100%; height: 400px" :options="mapOptions">
