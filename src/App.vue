@@ -77,14 +77,14 @@
 			<a class="anchor" id="result"></a>
 
 			<div class="my-5" v-show="resultList.length > 0">
-				<!-- <ul class="nav nav-tabs mb-3">
+				<!--<ul class="nav nav-tabs mb-3">
 					<li class="nav-item">
 						<a class="nav-link active" aria-current="page" href="#">Lista</a>
 					</li>
 					<li class="nav-item">
 						<a class="nav-link" href="#">Gráficos</a>
 					</li>
-				</ul> -->
+				</ul>-->
 
 				<h2>Lista de Endereços IP</h2>
 
@@ -99,12 +99,17 @@
 							</select>
 						</div>
 					</div>
-					<!-- <div class="col-12 d-grid d-lg-block">
-						<button type="button" class="btn btn-outline-secondary" data-bs-toggle="modal" data-bs-target="#exampleModal">Filtrar</button>
+					<div class="col-12 d-grid d-lg-block">
+						<button type="button" class="btn btn-outline-secondary position-relative" data-bs-toggle="modal" data-bs-target="#exampleModal">
+							Filtrar
+							<span v-if="isFilterDefined" class="position-absolute top-0 start-100 translate-middle p-2 bg-primary border border-light rounded-circle">
+								<span class="visually-hidden">Alert</span>
+							</span>
+						</button>
 					</div>
 					<div class="col-12 d-grid d-lg-block">
 						<button type="button" class="btn btn-outline-secondary" @click="exportExcel()">Exportar Excel</button>
-					</div> -->
+					</div>
 				</div>
 
 				<GMapMap ref="myMapRef" class="mt-3 mb-3" :center="mapCenter" :zoom="mapZoom" map-type-id="terrain" style="width: 100%; height: 400px" :options="mapOptions">
@@ -126,7 +131,7 @@
 							</tr>
 						</thead>
 						<tbody>
-							<tr v-for="(resultObj, index) in resultList" :key="index" :class="ipQueryArray[resultObj.ipQueryIndex].status">
+							<tr v-for="(resultObj, index) in resultItens" :key="index" :class="ipQueryArray[resultObj.ipQueryIndex].status">
 								<td>
 									<div v-if="ipQueryArray[resultObj.ipQueryIndex].status == 'loading'" class="spinner-border spinner-border-sm" role="status">
 										<span class="visually-hidden">Loading...</span>
@@ -163,40 +168,44 @@
 					<div class="row g-3">
 						<div class="col-md-6">
 							<label for="inputInitialDate" class="form-label">Data Inicial</label>
-							<input type="datetime-local" class="form-control" id="inputInitialDate">
+							<input v-model="filterData.initialDate" type="datetime-local" class="form-control" id="inputInitialDate">
 						</div>
 						<div class="col-md-6">
 							<label for="inputFinalDate" class="form-label">Data Final</label>
-							<input type="datetime-local" class="form-control" id="inputFinalDate">
+							<input v-model="filterData.finalDate" type="datetime-local" class="form-control" id="inputFinalDate">
 						</div>
 						<div class="col-md-6">
 							<label for="selectCountry" class="form-label">País</label>
-							<select type="text" class="form-select" id="selectCountry">
-								<option>Todos</option>
+							<select v-model="filterData.country" type="text" class="form-select" id="selectCountry">
+								<option value="">Todos</option>
+								<option v-for="item in countryItens" :value="item" :key="item">{{ item }}</option>
 							</select>
 						</div>
 						<div class="col-md-6">
 							<label for="selectRegion" class="form-label">UF</label>
-							<select type="text" class="form-select" id="selectRegion">
-								<option>Todos</option>
+							<select v-model="filterData.region" type="text" class="form-select" id="selectRegion">
+								<option value="">Todos</option>
+								<option v-for="item in regionItens" :value="item" :key="item">{{ item }}</option>
 							</select>
 						</div>
 						<div class="col-md-6">
 							<label for="selectCity" class="form-label">Cidade</label>
-							<select type="text" class="form-select" id="selectCity">
-								<option>Todos</option>
+							<select v-model="filterData.city" type="text" class="form-select" id="selectCity">
+								<option value="">Todos</option>
+								<option v-for="item in cityItens" :value="item" :key="item">{{ item }}</option>
 							</select>
 						</div>
 						<div class="col-md-6">
 							<label for="selectISP" class="form-label">ISP</label>
-							<select type="text" class="form-select" id="selectISP">
-								<option>Todos</option>
+							<select v-model="filterData.isp" type="text" class="form-select" id="selectISP">
+								<option value="">Todos</option>
+								<option v-for="item in ispItens" :value="item" :key="item">{{ item }}</option>
 							</select>
 						</div>
 					</div>
 				</div>
 				<div class="modal-footer">
-					<button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Limpar Filtros</button>
+					<button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal" @click="clearFilters()">Limpar Filtros</button>
 					<button type="button" class="btn btn-primary" data-bs-dismiss="modal">Fechar</button>
 				</div>
 			</div>
@@ -213,6 +222,7 @@
 import axios from 'axios';
 import moment from 'moment';
 import momentTZ from 'moment-timezone';
+import * as XLSX from 'xlsx';
 import {fileProcess} from './utils/processor';
 import darkMapStyleJSON from '../assets/dark-map-style.json'
 import '../assets/js/color-modes.js'
@@ -229,6 +239,14 @@ export default {
 				selectedFile: '',
 				selectedTimezone: -new Date().getTimezoneOffset()
 			},
+			filterData: {
+				initialDate: '',
+				finalDate: '',
+				country: '',
+				region: '',
+				city: '',
+				isp: ''
+			},
 			mapMarkers: [],
 			mapCenter: { lat: 0, lng: 0 },
 			mapZoom: 1,
@@ -244,6 +262,46 @@ export default {
 		};
 	},
 	computed: {
+		isFilterDefined: function() {
+			return this.filterData.initialDate !== "" ||
+				this.filterData.finalDate !== "" ||
+				this.filterData.country !== "" ||
+				this.filterData.region !== "" ||
+				this.filterData.city !== "" ||
+				this.filterData.isp !== "";
+		},
+		resultItens: function() {
+			return this.resultList.filter(ipInfo => {
+				// Convertendo o timestamp para objeto Date para comparação
+				const ipDate = new Date(ipInfo.timestamp);
+				const startDate = new Date(this.filterData.initialDate);
+				const endDate = new Date(this.filterData.finalDate);
+
+				// Encontrando o ISP correspondente
+				const ispObj = this.ipQueryArray[ipInfo.ipQueryIndex];
+				if (!ispObj) return false;  // Se nenhum ISP corresponde, descarta o IP
+
+				// Verifica todas as condições de filtragem
+				return (this.filterData.initialDate === "" || ipDate >= startDate) && 
+					(this.filterData.finalDate === "" || ipDate <= endDate) && 
+					(this.filterData.isp === "" || ispObj.isp === this.filterData.isp) &&
+					(this.filterData.country === "" || ispObj.country === this.filterData.country) &&
+					(this.filterData.region === "" || ispObj.region === this.filterData.region) &&
+					(this.filterData.city === "" || ispObj.city === this.filterData.city);
+			});
+		},
+		countryItens: function() {
+			return this.getUniqueISPItens("country");
+		},
+		regionItens: function() {
+			return this.getUniqueISPItens("region");
+		},
+		cityItens: function() {
+			return this.getUniqueISPItens("city");
+		},
+		ispItens: function() {
+			return this.getUniqueISPItens("isp");
+		},
 		timezoneItens: function() {
 			// Get all available timezone names
 			const timezones = momentTZ.tz.names();
@@ -276,6 +334,21 @@ export default {
 		}
 	},
 	methods: {
+		clearFilters() {
+			this.filterData.finalDate = "";
+			this.filterData.initialDate = "";			
+			this.filterData.country = "";
+			this.filterData.region = "";
+			this.filterData.city = "";
+			this.filterData.isp = "";
+		},
+		getUniqueISPItens(attribute) {
+			return this.ipQueryArray
+				.map((item) => item[attribute])
+				.filter(
+					(value, index, current_value) => value && current_value.indexOf(value) === index
+				);
+		},
 		printValue: function (value) {
 			return value ? value : "-";
 		},
@@ -397,6 +470,27 @@ export default {
 					console.error('Ocorreu um erro durante a busca dos dados: ', error);
 				}	
 			}		
+		},
+		exportExcel() {
+			var exportDataList = [];
+
+			for(let resultItem of this.resultList) {
+				var exportData = {
+					"Endereço IP" : this.printValue(resultItem.ip),
+					"Data" : this.convertDatetimeFormat(resultItem.timestamp, "DD/MM/YYYY"),
+					"Hora" : this.convertDatetimeFormat(resultItem.timestamp, "HH:mm:ss"),
+					"País" : this.printValue(this.ipQueryArray[resultItem.ipQueryIndex].country), 
+					"UF" : this.printValue(this.ipQueryArray[resultItem.ipQueryIndex].region), 
+					"Cidade" : this.printValue(this.ipQueryArray[resultItem.ipQueryIndex].city), 
+					"ISP" : this.printValue(this.ipQueryArray[resultItem.ipQueryIndex].isp)
+				};
+				exportDataList.push(exportData);
+			}			
+
+			var worksheet = XLSX.utils.json_to_sheet(exportDataList);					
+			var workbook = XLSX.utils.book_new();
+			XLSX.utils.book_append_sheet(workbook, worksheet, "Dados IP");
+			XLSX.writeFile(workbook, "meta-ip-result.xlsx");
 		}
 	},
 	setup() {
