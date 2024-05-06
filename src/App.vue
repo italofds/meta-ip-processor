@@ -77,82 +77,125 @@
 			<a class="anchor" id="result"></a>
 
 			<div class="my-5" v-show="resultList.length > 0">
-				<!--<ul class="nav nav-tabs mb-3">
-					<li class="nav-item">
-						<a class="nav-link active" aria-current="page" href="#">Lista</a>
+				<ul class="nav nav-tabs mb-3" role="tablist">
+					<li class="nav-item" role="presentation">
+						<button class="nav-link active" data-bs-toggle="tab" data-bs-target="#list-tab-pane" type="button" role="tab" aria-controls="list-tab-pane" aria-selected="true">Lista</button>
 					</li>
-					<li class="nav-item">
-						<a class="nav-link" href="#">Gráficos</a>
+					<li class="nav-item" role="presentation">
+						<button @click="loadCharts" class="nav-link" data-bs-toggle="tab" data-bs-target="#charts-tab-pane" type="button" role="tab" aria-controls="charts-tab-pane" aria-selected="false">Gráficos</button>
 					</li>
-				</ul>-->
+				</ul>
 
-				<h2>Lista de Endereços IP</h2>
+				<div class="tab-content">
+					<div class="tab-pane fade show active" id="list-tab-pane" role="tabpanel" aria-labelledby="list-tab" tabindex="0">
+						<h2>Lista de Endereços IP</h2>
 
-				<p class="text-muted">Exibindo resultado do total de <strong>{{ resultList.length }}</strong> endereços IP identificados.</p>
+						<p class="text-muted">Exibindo resultado do total de <strong>{{ resultList.length }}</strong> endereços IP identificados.</p>
 
-				<div class="row row-cols-lg-auto g-3 mb-3">
-					<div class="col-12">
-						<div class="input-group">
-							<span class="input-group-text" id="basic-addon1">Fuso Horário:</span>
-							<select v-model="formData.selectedTimezone" class="form-select">
-								<option v-for="item in timezoneItens" :value="item.id" :key="item.id">{{ item.text }}</option>
-							</select>
+						<div class="row row-cols-lg-auto g-3 mb-3">
+							<div class="col-12">
+								<div class="input-group">
+									<span class="input-group-text" id="basic-addon1">Fuso Horário:</span>
+									<select v-model="formData.selectedTimezone" class="form-select">
+										<option v-for="item in timezoneItens" :value="item.id" :key="item.id">{{ item.text }}</option>
+									</select>
+								</div>
+							</div>
+							<div class="col-12 d-grid d-lg-block">
+								<button type="button" class="btn btn-outline-secondary position-relative" data-bs-toggle="modal" data-bs-target="#exampleModal">
+									Filtrar
+									<span v-if="isFilterDefined" class="position-absolute top-0 start-100 translate-middle p-2 bg-primary border border-light rounded-circle">
+										<span class="visually-hidden">Alert</span>
+									</span>
+								</button>
+							</div>
+							<div class="col-12 d-grid d-lg-block">
+								<button type="button" class="btn btn-outline-secondary" @click="exportExcel()">Exportar Excel</button>
+							</div>
+						</div>
+
+						<GMapMap ref="myMapRef" class="mt-3 mb-3" :center="mapCenter" :zoom="mapZoom" map-type-id="terrain" style="width: 100%; height: 400px" :options="mapOptions">
+							<GMapMarker :key="marker" v-for="marker in mapMarkers" :position="marker.position"/>	
+						</GMapMap>
+						
+						<div class="table-responsive mb-3 mt-3">
+							<table class="table table-striped table-hover mb-0">
+								<thead>
+									<tr>
+										<th class="text-nowrap" scope="col"></th>
+										<th class="text-nowrap" scope="col">Endereço IP</th>
+										<th class="text-nowrap text-center" scope="col">Data</th>
+										<th class="text-nowrap text-center" scope="col">Hora</th>
+										<th class="text-nowrap" scope="col">País</th>
+										<th class="text-nowrap" scope="col">UF</th>
+										<th class="text-nowrap" scope="col">Cidade</th>
+										<th class="text-nowrap" scope="col">ISP</th>
+									</tr>
+								</thead>
+								<tbody>
+									<tr v-for="(resultObj, index) in resultItens" :key="index" :class="ipQueryArray[resultObj.ipQueryIndex].status">
+										<td>
+											<div v-if="ipQueryArray[resultObj.ipQueryIndex].status == 'loading'" class="spinner-border spinner-border-sm" role="status">
+												<span class="visually-hidden">Loading...</span>
+											</div>
+											<i v-if="ipQueryArray[resultObj.ipQueryIndex].status == 'error'" class="text-danger bi bi-exclamation-diamond-fill"></i>
+											<i v-if="ipQueryArray[resultObj.ipQueryIndex].status == 'success'" class="text-success bi bi-check-circle-fill"></i>
+										</td>
+										<td class="text-nowrap">{{ printValue(resultObj.ip) }}</td>								
+										<td class="text-nowrap text-center">{{ convertDatetimeFormat(resultObj.timestamp, "DD/MM/YYYY") }}</td>
+										<td class="text-nowrap text-center">{{ convertDatetimeFormat(resultObj.timestamp, "HH:mm:ss") }}</td>
+										<td class="text-nowrap">{{ printValue(ipQueryArray[resultObj.ipQueryIndex].country) }}</td>
+										<td class="text-nowrap">{{ printValue(ipQueryArray[resultObj.ipQueryIndex].region) }}</td>
+										<td class="text-nowrap">{{ printValue(ipQueryArray[resultObj.ipQueryIndex].city) }}</td>
+										<td class="text-nowrap">{{ printValue(ipQueryArray[resultObj.ipQueryIndex].isp) }}</td>
+									</tr>
+								</tbody>
+							</table>
 						</div>
 					</div>
-					<div class="col-12 d-grid d-lg-block">
-						<button type="button" class="btn btn-outline-secondary position-relative" data-bs-toggle="modal" data-bs-target="#exampleModal">
-							Filtrar
-							<span v-if="isFilterDefined" class="position-absolute top-0 start-100 translate-middle p-2 bg-primary border border-light rounded-circle">
-								<span class="visually-hidden">Alert</span>
-							</span>
-						</button>
-					</div>
-					<div class="col-12 d-grid d-lg-block">
-						<button type="button" class="btn btn-outline-secondary" @click="exportExcel()">Exportar Excel</button>
-					</div>
-				</div>
 
-				<GMapMap ref="myMapRef" class="mt-3 mb-3" :center="mapCenter" :zoom="mapZoom" map-type-id="terrain" style="width: 100%; height: 400px" :options="mapOptions">
-					<GMapMarker :key="marker" v-for="marker in mapMarkers" :position="marker.position"/>	
-				</GMapMap>
-				
-				<div class="table-responsive mb-3 mt-3">
-					<table class="table table-striped table-hover mb-0">
-						<thead>
-							<tr>
-								<th class="text-nowrap" scope="col"></th>
-								<th class="text-nowrap" scope="col">Endereço IP</th>
-								<th class="text-nowrap text-center" scope="col">Data</th>
-								<th class="text-nowrap text-center" scope="col">Hora</th>
-								<th class="text-nowrap" scope="col">País</th>
-								<th class="text-nowrap" scope="col">UF</th>
-								<th class="text-nowrap" scope="col">Cidade</th>
-								<th class="text-nowrap" scope="col">ISP</th>
-							</tr>
-						</thead>
-						<tbody>
-							<tr v-for="(resultObj, index) in resultItens" :key="index" :class="ipQueryArray[resultObj.ipQueryIndex].status">
-								<td>
-									<div v-if="ipQueryArray[resultObj.ipQueryIndex].status == 'loading'" class="spinner-border spinner-border-sm" role="status">
-										<span class="visually-hidden">Loading...</span>
-									</div>
-									<i v-if="ipQueryArray[resultObj.ipQueryIndex].status == 'error'" class="text-danger bi bi-exclamation-diamond-fill"></i>
-									<i v-if="ipQueryArray[resultObj.ipQueryIndex].status == 'success'" class="text-success bi bi-check-circle-fill"></i>
-								</td>
-								<td class="text-nowrap">{{ printValue(resultObj.ip) }}</td>								
-								<td class="text-nowrap text-center">{{ convertDatetimeFormat(resultObj.timestamp, "DD/MM/YYYY") }}</td>
-								<td class="text-nowrap text-center">{{ convertDatetimeFormat(resultObj.timestamp, "HH:mm:ss") }}</td>
-								<td class="text-nowrap">{{ printValue(ipQueryArray[resultObj.ipQueryIndex].country) }}</td>
-								<td class="text-nowrap">{{ printValue(ipQueryArray[resultObj.ipQueryIndex].region) }}</td>
-								<td class="text-nowrap">{{ printValue(ipQueryArray[resultObj.ipQueryIndex].city) }}</td>
-								<td class="text-nowrap">{{ printValue(ipQueryArray[resultObj.ipQueryIndex].isp) }}</td>
-							</tr>
-						</tbody>
-					</table>
+					<div class="tab-pane fade" id="charts-tab-pane" role="tabpanel" aria-labelledby="chart-tab" tabindex="0">
+
+						<div class="card mb-4 rounded-3 shadow-sm">
+							<div class="card-header py-3">
+								<h4 class="my-0 fw-normal">Quantidade de Registros por Dia</h4>
+							</div>
+							<div class="card-body">
+								<canvas id="logsByDateChart"></canvas>
+							</div>
+						</div>
+
+						<div class="card mb-4 rounded-3 shadow-sm">
+							<div class="card-header py-3">
+								<h4 class="my-0 fw-normal">Quantidade de Registros por Dia da Semana</h4>
+							</div>
+							<div class="card-body">
+								<canvas id="logsByWeekDayChart"></canvas>
+							</div>
+						</div>
+
+						<div class="card mb-4 rounded-3 shadow-sm">
+							<div class="card-header py-3">
+								<h4 class="my-0 fw-normal">Quantidade de Registros por Hora</h4>
+							</div>
+							<div class="card-body">
+								<canvas id="logsByHourChart"></canvas>
+							</div>
+						</div>
+
+						<div class="card mb-4 rounded-3 shadow-sm">
+							<div class="card-header py-3">
+								<h4 class="my-0 fw-normal">Quantidade de Registros por Provedor</h4>
+							</div>
+							<div class="card-body">
+								<canvas id="logsByISPChart" style="max-height:400px;"></canvas>
+							</div>
+						</div>
+					</div>
 				</div>
 			</div>
 
-			<p class="text-muted small text-center">Desenvolvido por <a target="_blank" href="https://github.com/italofds">Ítalo Santos</a> | © 2024 | Licença GPL-3.0| Hospedado pelo GitHub Pages | Contribua: <a target="_blank" href="https://github.com/italofds/meta-ip-processor">github.com/italofds/meta-ip-processor</a></p>	
+			<p class="text-muted small text-center">Desenvolvido por <a target="_blank" href="https://github.com/italofds">Ítalo Santos</a> | © 2024 | Licença GPL-3.0 | Hospedado pelo GitHub Pages | Contribua: <a target="_blank" href="https://github.com/italofds/meta-ip-processor">github.com/italofds/meta-ip-processor</a></p>	
 		</div>
 	</main>
 
@@ -222,6 +265,7 @@
 import axios from 'axios';
 import moment from 'moment';
 import momentTZ from 'moment-timezone';
+import Chart from 'chart.js/auto';
 import * as XLSX from 'xlsx';
 import {fileProcess} from './utils/processor';
 import darkMapStyleJSON from '../assets/dark-map-style.json'
@@ -234,7 +278,13 @@ export default {
 	data() {
 		return { 
 			ipQueryArray: [],
-			resultList: [],			
+			resultList: [],	
+			charts: {
+				logsByDateChart:undefined,
+				logsByDayOfWeekChart:undefined,
+				logsByHourChart:undefined,
+				logsByISPChart:undefined,
+			},
 			formData: {
 				selectedFile: '',
 				selectedTimezone: -new Date().getTimezoneOffset()
@@ -334,6 +384,190 @@ export default {
 		}
 	},
 	methods: {
+		loadCharts() {
+			if(this.logsByDateChart) {
+				this.logsByDateChart.destroy();
+			}
+			
+			if(this.logsByDayOfWeekChart) {
+				this.logsByDayOfWeekChart.destroy();
+			}
+			
+			if(this.logsByHourChart) {
+				this.logsByHourChart.destroy();
+			}
+			
+			if(this.logsByISPChart) {
+				this.logsByISPChart.destroy();
+			}
+			
+
+
+			const sortedTimestamps = this.resultList.map(ip => moment(ip.timestamp)).sort((a, b) => a - b);
+			const firstDay = moment(sortedTimestamps[0]);
+			const lastDay = moment(sortedTimestamps[sortedTimestamps.length - 1]);
+
+			const counts = {};
+			for (let day = firstDay; day.isSameOrBefore(lastDay, 'day'); day.add(1, 'day')) {
+				const formattedDay = day.format('DD/MM/YYYY');
+				counts[formattedDay] = 0;
+			}
+
+			this.resultList.forEach(ip => {
+				const day = moment(ip.timestamp).format('DD/MM/YYYY');
+				counts[day] += 1;
+			});
+
+			const data = Object.entries(counts).map(([day, count]) => ({ day, count }));
+
+			this.logsByDateChart = new Chart(
+				document.getElementById('logsByDateChart'),
+				{
+					type: 'line',
+					data: {
+						labels: data.map(row => row.day),
+						datasets: [
+						{
+							label: 'Quantidade de Registros.',
+							data: data.map(row => row.count)
+						}
+						]
+					},
+					options: {
+						plugins: {
+							legend: {
+								position: "right"
+							}
+						}
+					}
+				}
+			);
+
+
+
+
+
+			const daysOfWeek = ['Domingo', 'Segunda', 'Terça', 'Quarta', 'Quinta', 'Sexta', 'Sábado'];
+			const counts2 = {
+				'Domingo': 0, 'Segunda': 0, 'Terça': 0, 'Quarta': 0, 'Quinta': 0, 'Sexta': 0, 'Sábado': 0
+			};
+
+			this.resultList.forEach(ip => {
+				const dayOfWeek = daysOfWeek[new Date(ip.timestamp).getDay()];
+				counts2[dayOfWeek] = (counts2[dayOfWeek] || 0) + 1;
+			});
+			const data2 = Object.entries(counts2).map(([dayOfWeek, count]) => ({ dayOfWeek, count }));
+
+			this.logsByDayOfWeekChart = new Chart(
+				document.getElementById('logsByWeekDayChart'),
+				{
+					type: 'bar',
+					data: {
+						labels: data2.map(row => row.dayOfWeek),
+						datasets: [
+						{
+							label: 'Quantidade de Registros.',
+							data: data2.map(row => row.count)
+						}
+						]
+					},
+					options: {
+						plugins: {
+							legend: {
+								position: "right"
+							}
+						}
+					}
+				}
+			);
+
+
+
+
+
+			const counts3 = {};
+			for (let hour = 0; hour < 24; hour++) {
+				counts3[hour] = 0;  // Inicializando cada hora do dia com zero
+			}
+
+			this.resultList.forEach(ip => {
+				const hour = new Date(ip.timestamp).getHours();
+				counts3[hour] += 1;
+			});
+
+			const data3 = Object.entries(counts3).map(([hour, count]) => ({ hour: parseInt(hour), count }));
+
+			this.logsByHourChart = new Chart(
+				document.getElementById('logsByHourChart'),
+				{
+					type: 'line',
+					data: {
+						labels: data3.map(row => row.hour),
+						datasets: [
+						{
+							label: 'Quantidade de Registros.',
+							data: data3.map(row => row.count)
+						}
+						]
+					},
+					options: {
+						plugins: {
+							legend: {
+								position: "right"
+							}
+						}
+					}					
+				}
+			);
+
+
+
+
+
+
+
+
+
+
+
+			const counts4 = {};
+			this.resultList.forEach(ip => {
+				const ispName = this.ipQueryArray[ip.ipQueryIndex].isp;
+				counts4[ispName] = (counts4[ispName] || 0) + 1;
+			});
+			const data4 = Object.entries(counts4).map(([name, count]) => ({ name, count }));
+
+			this.logsByISPChart = new Chart(
+				document.getElementById('logsByISPChart'),
+				{
+					type: 'pie',
+					data: {
+						labels: data4.map(row => row.name),
+						datasets: [
+						{
+							label: 'Quantidade de Registros.',
+							data: data4.map(row => row.count)
+						}
+						]
+					},
+					options: {
+						plugins: {
+							legend: {
+								position: "right"
+							}
+						}
+					}					
+				}
+			);
+
+
+
+
+
+
+
+
+		},
 		clearFilters() {
 			this.filterData.finalDate = "";
 			this.filterData.initialDate = "";			
@@ -365,6 +599,22 @@ export default {
 			this.formData.selectedFile = event.target.files[0];
 		},
 		handleFormSubmit() {
+			if(this.logsByDateChart) {
+				this.logsByDateChart.destroy();
+			}
+			
+			if(this.logsByDayOfWeekChart) {
+				this.logsByDayOfWeekChart.destroy();
+			}
+			
+			if(this.logsByHourChart) {
+				this.logsByHourChart.destroy();
+			}
+			
+			if(this.logsByISPChart) {
+				this.logsByISPChart.destroy();
+			}
+
 			this.resultList = [];
 			this.ipQueryArray = [];
 			this.mapMarkers = [];
@@ -469,7 +719,7 @@ export default {
 					item.status = "error"
 					console.error('Ocorreu um erro durante a busca dos dados: ', error);
 				}	
-			}		
+			}	
 		},
 		exportExcel() {
 			var exportDataList = [];
