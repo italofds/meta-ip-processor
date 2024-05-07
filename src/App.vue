@@ -155,42 +155,10 @@
 					</div>
 
 					<div class="tab-pane fade" id="charts-tab-pane" role="tabpanel" aria-labelledby="chart-tab" tabindex="0">
-
-						<div class="card mb-4 rounded-3 shadow-sm">
-							<div class="card-header py-3">
-								<h4 class="my-0 fw-normal">Quantidade de Registros por Dia</h4>
-							</div>
-							<div class="card-body">
-								<canvas id="logsByDateChart"></canvas>
-							</div>
-						</div>
-
-						<div class="card mb-4 rounded-3 shadow-sm">
-							<div class="card-header py-3">
-								<h4 class="my-0 fw-normal">Quantidade de Registros por Dia da Semana</h4>
-							</div>
-							<div class="card-body">
-								<canvas id="logsByWeekDayChart"></canvas>
-							</div>
-						</div>
-
-						<div class="card mb-4 rounded-3 shadow-sm">
-							<div class="card-header py-3">
-								<h4 class="my-0 fw-normal">Quantidade de Registros por Hora</h4>
-							</div>
-							<div class="card-body">
-								<canvas id="logsByHourChart"></canvas>
-							</div>
-						</div>
-
-						<div class="card mb-4 rounded-3 shadow-sm">
-							<div class="card-header py-3">
-								<h4 class="my-0 fw-normal">Quantidade de Registros por Provedor</h4>
-							</div>
-							<div class="card-body">
-								<canvas id="logsByISPChart" style="max-height:400px;"></canvas>
-							</div>
-						</div>
+						<chart-component :data="dataChart1" :title="'Quantidade de Registros por Data'" :type="'line'"></chart-component>
+						<chart-component :data="dataChart2" :title="'Quantidade de Registros por Dia da Semana'" :type="'bar'"></chart-component>
+						<chart-component :data="dataChart3" :title="'Quantidade de Registros por Hora'" :type="'line'"></chart-component>
+						<chart-component :data="dataChart4" :title="'Quantidade de Registros por Provedor'" :type="'pie'"></chart-component>
 					</div>
 				</div>
 			</div>
@@ -264,16 +232,19 @@
 import axios from 'axios';
 import moment from 'moment';
 import momentTZ from 'moment-timezone';
-import Chart from 'chart.js/auto';
 import * as XLSX from 'xlsx';
 import {fileProcess} from './utils/processor';
 import darkMapStyleJSON from '../assets/dark-map-style.json'
 import '../assets/js/color-modes.js'
 import * as bootstrap from 'bootstrap';
+import ChartComponent from './components/ChartComponent.vue';
 
 const MAX_DAYS_DIFF = 10;
 
 export default {
+	components: {
+		ChartComponent
+	},
 	name: 'App',
 	data() {
 		return { 
@@ -308,7 +279,11 @@ export default {
 				rotateControl: false,
 				fullscreenControl: false,
 				scrollwheel: false
-			}
+			},
+			dataChart1: null,
+			dataChart2: null,
+			dataChart3: null,
+			dataChart4: null,
 		};
 	},
 	computed: {
@@ -441,109 +416,57 @@ export default {
 			// ######### First Chart - Logs By Date #########
 			// ##############################################	
 
-			this.logsByDateChart = new Chart(
-				document.getElementById('logsByDateChart'),
-				{
-					type: 'line',
-					data: {
-						labels: dataChart1.map(row => row.day),
-						datasets: [
-						{
-							label: 'Registros de Conexão',
-							data: dataChart1.map(row => row.count)
-						}
-						]
-					},
-					options: {
-						plugins: {
-							legend: {
-								position: "right"
-							}
-						}
+			this.dataChart1 = {
+				labels: dataChart1.map(row => row.day),
+				datasets: [
+					{
+						label: 'Registros de Conexão',
+						data: dataChart1.map(row => row.count)
 					}
-				}
-			);
+				]
+			}
 
 			// #####################################################
 			// ######### First Chart - Logs By Day of Week #########
 			// #####################################################
 
-			this.logsByDayOfWeekChart = new Chart(
-				document.getElementById('logsByWeekDayChart'),
-				{
-					type: 'bar',
-					data: {
-						labels: dataChart2.map(row => row.dayOfWeek),
-						datasets: [
-						{
-							label: 'Registros de Conexão',
-							data: dataChart2.map(row => row.count)
-						}
-						]
-					},
-					options: {
-						plugins: {
-							legend: {
-								position: "right"
-							}
-						}
+			this.dataChart2 = {
+				labels: dataChart2.map(row => row.dayOfWeek),
+				datasets: [
+					{
+						label: 'Registros de Conexão',
+						data: dataChart2.map(row => row.count)
 					}
-				}
-			);
+				]
+			}
 			
 			// ##############################################
 			// ######### First Chart - Logs By Hour #########
 			// ##############################################
 
-			this.logsByHourChart = new Chart(
-				document.getElementById('logsByHourChart'),
-				{
-					type: 'line',
-					data: {
-						labels: dataChart3.map(row => row.hour),
-						datasets: [
-						{
-							label: 'Registros de Conexão',
-							data: dataChart3.map(row => row.count)
-						}
-						]
-					},
-					options: {
-						plugins: {
-							legend: {
-								position: "right"
-							}
-						}
-					}					
-				}
-			);
+			this.dataChart3 = {
+				labels: dataChart3.map(row => row.hour),
+				datasets: [
+					{
+						label: 'Registros de Conexão',
+						data: dataChart3.map(row => row.count)
+					}
+				]
+			}
 
 			// #############################################
 			// ######### First Chart - Logs By ISP #########
 			// #############################################
 
-			this.logsByISPChart = new Chart(
-				document.getElementById('logsByISPChart'),
-				{
-					type: 'pie',
-					data: {
-						labels: dataChart4.map(row => row.name),
-						datasets: [
-						{
-							label: 'Registros de Conexão',
-							data: dataChart4.map(row => row.count)
-						}
-						]
-					},
-					options: {
-						plugins: {
-							legend: {
-								position: "right"
-							}
-						}
-					}					
-				}
-			);
+			this.dataChart4 = {
+				labels: dataChart4.map(row => row.name),
+				datasets: [
+					{
+						label: 'Registros de Conexão',
+						data: dataChart4.map(row => row.count)
+					}
+				]
+			}
 		},
 		clearFilters() {
 			this.filterData.finalDate = "";
