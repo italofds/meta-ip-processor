@@ -219,28 +219,28 @@
 						</div>
 						<div class="col-md-6">
 							<label for="selectCountry" class="form-label">País</label>
-							<select v-model="filterData.country" type="text" class="form-select" id="selectCountry">
+							<select v-model="filterData.country" class="form-select" id="selectCountry">
 								<option value="">Todos</option>
 								<option v-for="item in countryItens" :value="item" :key="item">{{ item }}</option>
 							</select>
 						</div>
 						<div class="col-md-6">
 							<label for="selectRegion" class="form-label">UF</label>
-							<select v-model="filterData.region" type="text" class="form-select" id="selectRegion">
+							<select v-model="filterData.region" class="form-select" id="selectRegion">
 								<option value="">Todos</option>
 								<option v-for="item in regionItens" :value="item" :key="item">{{ item }}</option>
 							</select>
 						</div>
 						<div class="col-md-6">
 							<label for="selectCity" class="form-label">Cidade</label>
-							<select v-model="filterData.city" type="text" class="form-select" id="selectCity">
+							<select v-model="filterData.city" class="form-select" id="selectCity">
 								<option value="">Todos</option>
 								<option v-for="item in cityItens" :value="item" :key="item">{{ item }}</option>
 							</select>
 						</div>
 						<div class="col-md-6">
 							<label for="selectISP" class="form-label">ISP</label>
-							<select v-model="filterData.isp" type="text" class="form-select" id="selectISP">
+							<select v-model="filterData.isp" class="form-select" id="selectISP">
 								<option value="">Todos</option>
 								<option v-for="item in ispItens" :value="item" :key="item">{{ item }}</option>
 							</select>
@@ -260,7 +260,6 @@
 	</a>
 </template>
 
-
 <script>
 import axios from 'axios';
 import moment from 'moment';
@@ -270,6 +269,7 @@ import * as XLSX from 'xlsx';
 import {fileProcess} from './utils/processor';
 import darkMapStyleJSON from '../assets/dark-map-style.json'
 import '../assets/js/color-modes.js'
+import * as bootstrap from 'bootstrap';
 
 const MAX_DAYS_DIFF = 10;
 
@@ -400,36 +400,57 @@ export default {
 			if(this.logsByISPChart) {
 				this.logsByISPChart.destroy();
 			}
+
+			const sortedTimestamps = this.resultList.map(ip => moment.utc(ip.timestamp, 'YYYY-MM-DD HH:mm:SS UTC')).sort((a, b) => a - b);
+			const firstDay = sortedTimestamps[0];
+			const lastDay = sortedTimestamps[sortedTimestamps.length - 1];
+			const daysOfWeek = ['Domingo', 'Segunda', 'Terça', 'Quarta', 'Quinta', 'Sexta', 'Sábado'];
+			const dateCounts = {};
+			const dayOfWeekCounts = { 'Domingo': 0, 'Segunda': 0, 'Terça': 0, 'Quarta': 0, 'Quinta': 0, 'Sexta': 0, 'Sábado': 0 };
+			const hourCounts = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
+			const ispCounts = {};
 			
-
-
-			const sortedTimestamps = this.resultList.map(ip => moment(ip.timestamp)).sort((a, b) => a - b);
-			const firstDay = moment(sortedTimestamps[0]);
-			const lastDay = moment(sortedTimestamps[sortedTimestamps.length - 1]);
-
-			const counts = {};
 			for (let day = firstDay; day.isSameOrBefore(lastDay, 'day'); day.add(1, 'day')) {
-				const formattedDay = day.format('DD/MM/YYYY');
-				counts[formattedDay] = 0;
-			}
+				const formattedDay = this.convertDatetimeFormat(day, 'DD/MM/YYYY');
+				dateCounts[formattedDay] = 0;
+			}			
 
 			this.resultList.forEach(ip => {
-				const day = moment(ip.timestamp).format('DD/MM/YYYY');
-				counts[day] += 1;
+				const momentTimestamp = moment.utc(ip.timestamp, 'YYYY-MM-DD HH:mm:SS UTC').utcOffset(this.formData.selectedTimezone);
+
+				const date = momentTimestamp.format('DD/MM/YYYY');
+				dateCounts[date] += 1;
+
+				const dayOfWeek = daysOfWeek[momentTimestamp.day()];
+				dayOfWeekCounts[dayOfWeek] = (dayOfWeekCounts[dayOfWeek] || 0) + 1;
+
+				const hour = momentTimestamp.hours();
+				hourCounts[hour] += 1;
+
+				const ispName = this.ipQueryArray[ip.ipQueryIndex].isp;
+				ispCounts[ispName] = (ispCounts[ispName] || 0) + 1;
 			});
 
-			const data = Object.entries(counts).map(([day, count]) => ({ day, count }));
+			const dataChart1 = Object.entries(dateCounts).map(([day, count]) => ({ day, count }));
+			const dataChart2 = Object.entries(dayOfWeekCounts).map(([dayOfWeek, count]) => ({ dayOfWeek, count }));
+			const dataChart3 = Object.entries(hourCounts).map(([hour, count]) => ({ hour: parseInt(hour)+"h", count }));
+			const dataChart4 = Object.entries(ispCounts).map(([name, count]) => ({ name, count }));
+
+
+			// ##############################################
+			// ######### First Chart - Logs By Date #########
+			// ##############################################	
 
 			this.logsByDateChart = new Chart(
 				document.getElementById('logsByDateChart'),
 				{
 					type: 'line',
 					data: {
-						labels: data.map(row => row.day),
+						labels: dataChart1.map(row => row.day),
 						datasets: [
 						{
-							label: 'Quantidade de Registros.',
-							data: data.map(row => row.count)
+							label: 'Registros de Conexão',
+							data: dataChart1.map(row => row.count)
 						}
 						]
 					},
@@ -443,31 +464,20 @@ export default {
 				}
 			);
 
-
-
-
-
-			const daysOfWeek = ['Domingo', 'Segunda', 'Terça', 'Quarta', 'Quinta', 'Sexta', 'Sábado'];
-			const counts2 = {
-				'Domingo': 0, 'Segunda': 0, 'Terça': 0, 'Quarta': 0, 'Quinta': 0, 'Sexta': 0, 'Sábado': 0
-			};
-
-			this.resultList.forEach(ip => {
-				const dayOfWeek = daysOfWeek[new Date(ip.timestamp).getDay()];
-				counts2[dayOfWeek] = (counts2[dayOfWeek] || 0) + 1;
-			});
-			const data2 = Object.entries(counts2).map(([dayOfWeek, count]) => ({ dayOfWeek, count }));
+			// #####################################################
+			// ######### First Chart - Logs By Day of Week #########
+			// #####################################################
 
 			this.logsByDayOfWeekChart = new Chart(
 				document.getElementById('logsByWeekDayChart'),
 				{
 					type: 'bar',
 					data: {
-						labels: data2.map(row => row.dayOfWeek),
+						labels: dataChart2.map(row => row.dayOfWeek),
 						datasets: [
 						{
-							label: 'Quantidade de Registros.',
-							data: data2.map(row => row.count)
+							label: 'Registros de Conexão',
+							data: dataChart2.map(row => row.count)
 						}
 						]
 					},
@@ -480,33 +490,21 @@ export default {
 					}
 				}
 			);
-
-
-
-
-
-			const counts3 = {};
-			for (let hour = 0; hour < 24; hour++) {
-				counts3[hour] = 0;  // Inicializando cada hora do dia com zero
-			}
-
-			this.resultList.forEach(ip => {
-				const hour = new Date(ip.timestamp).getHours();
-				counts3[hour] += 1;
-			});
-
-			const data3 = Object.entries(counts3).map(([hour, count]) => ({ hour: parseInt(hour), count }));
+			
+			// ##############################################
+			// ######### First Chart - Logs By Hour #########
+			// ##############################################
 
 			this.logsByHourChart = new Chart(
 				document.getElementById('logsByHourChart'),
 				{
 					type: 'line',
 					data: {
-						labels: data3.map(row => row.hour),
+						labels: dataChart3.map(row => row.hour),
 						datasets: [
 						{
-							label: 'Quantidade de Registros.',
-							data: data3.map(row => row.count)
+							label: 'Registros de Conexão',
+							data: dataChart3.map(row => row.count)
 						}
 						]
 					},
@@ -520,33 +518,20 @@ export default {
 				}
 			);
 
-
-
-
-
-
-
-
-
-
-
-			const counts4 = {};
-			this.resultList.forEach(ip => {
-				const ispName = this.ipQueryArray[ip.ipQueryIndex].isp;
-				counts4[ispName] = (counts4[ispName] || 0) + 1;
-			});
-			const data4 = Object.entries(counts4).map(([name, count]) => ({ name, count }));
+			// #############################################
+			// ######### First Chart - Logs By ISP #########
+			// #############################################
 
 			this.logsByISPChart = new Chart(
 				document.getElementById('logsByISPChart'),
 				{
 					type: 'pie',
 					data: {
-						labels: data4.map(row => row.name),
+						labels: dataChart4.map(row => row.name),
 						datasets: [
 						{
-							label: 'Quantidade de Registros.',
-							data: data4.map(row => row.count)
+							label: 'Registros de Conexão',
+							data: dataChart4.map(row => row.count)
 						}
 						]
 					},
@@ -559,14 +544,6 @@ export default {
 					}					
 				}
 			);
-
-
-
-
-
-
-
-
 		},
 		clearFilters() {
 			this.filterData.finalDate = "";
@@ -619,6 +596,10 @@ export default {
 			this.ipQueryArray = [];
 			this.mapMarkers = [];
 			var file = this.formData.selectedFile;
+
+			//Return to list tab
+			const triggerEl = document.querySelector('button[data-bs-target="#list-tab-pane"]')
+			bootstrap.Tab.getInstance(triggerEl).show();
 
 			//Abort previous API calls on axios
 			const controller = new AbortController();

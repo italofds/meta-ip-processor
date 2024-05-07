@@ -4,6 +4,8 @@ import $ from 'jquery';
 // To achieve this, the code searches for elements in tables (old format) or in divs (new format).
 
 export function fileProcess(htmlString) {
+
+    htmlString = htmlString.replace(/src=/gi, 'data-src=').replace(/href=/gi, 'data-href=');//Disable source loading from 'src' and 'href' attributes
     const $html = $(htmlString);
 
     const $ipTimeBlock = $html.find('div.t.i,th').filter(function() {
