@@ -61,7 +61,7 @@
 		<div class="container p-3">
 			<div class="bg-body-tertiary mb-3 p-3 p-lg-5 rounded">
 				<h1 class="mb-3">Processador de dados de IP da plataforma META</h1>
-				<p class="lead">Esta ferramenta realiza o processamento das respostas da empresa <strong>META PLATFORMS, INC.</strong> referentes aos endereços IP's requisitados judicialmente pelas plataformas <strong>Facebook Records</strong> e <strong>WhatsApp Records</strong>.</p>
+				<p class="lead">Ferramenta de processamento para tratar as respostas da empresa <strong>Meta Platforms, Inc.</strong> acerca dos endereços IP solicitados judicialmente, especificamente através das plataformas <strong>Facebook Records</strong> e <strong>WhatsApp Records</strong>.</p>
 				<p class="lead">Para isso, é necessário que o usuário informe o arquivo do tipo <strong>".html"</strong> a ser processado. Após o processamento, todos os registros respondidos pela empresa constarão em formato de lista, com data e hora convertidos pro fuso horário selecionado, além de constar também informações dos provedores de conexão dos respectivos endereços IP.</p>
 
 				<form @submit.prevent="handleFormSubmit" class="mt-5">
