@@ -96,18 +96,18 @@
 						<div id="statusPanel" :class="{ 'alert mb-4': true, 'alert-warning': numIspLoaded < ispList.length, 'alert-success': numIspLoaded == ispList.length }" role="alert">
 							<h4 class="mb-3">Resultado do Processamento:</h4>
 							<hr/>
-							<div>
+							<div class="d-flex flex-row mb-2">
 								<i class="text-success bi bi-check-circle-fill me-3"></i>
-								<span>1. Processando registros: esta etapa poderá levar alguns segundos, dependendo do tamanho do arquivo e da capacidade de processamento da máquina do cliente.</span>
+								<span><strong>1.</strong> Processando registros: esta etapa poderá levar alguns segundos, dependendo do tamanho do arquivo e da capacidade de processamento da máquina do cliente.</span>
 							</div>
-							<div>
-								<i class="text-success bi bi-check-circle-fill me-3"></i>
-								<span>2. Foram identificados um total de <strong>{{ resultList.length }}</strong> registro(s).</span>
+							<div class="d-flex flex-row mb-2">
+								<i class="d-inline-block text-success bi bi-check-circle-fill me-3"></i>
+								<span><strong>2.</strong> Foram identificados um total de <strong>{{ resultList.length }}</strong> registro(s).</span>
 							</div>
-							<div>
+							<div class="d-flex flex-row">
 								<i v-if="numIspLoaded == ispList.length" class="text-success bi bi-check-circle-fill me-3"></i>
 								<div v-if="numIspLoaded < ispList.length" class="spinner-border spinner-border-sm me-3"><span class="visually-hidden">Loading...</span></div>
-								<span :class="{ 'opacity-50': numIspLoaded < ispList.length }">3. Consultando provedores de conexão: <strong>{{numIspLoaded}}</strong> de <strong>{{ ispList.length }}</strong>.</span>
+								<span :class="{ 'opacity-50': numIspLoaded < ispList.length }"><strong>3.</strong> Consultando provedores de conexão: <strong>{{numIspLoaded}}</strong> de <strong>{{ ispList.length }}</strong>.</span>
 							</div>
 						</div>
 
