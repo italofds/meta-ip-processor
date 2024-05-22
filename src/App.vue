@@ -2,11 +2,12 @@
 	<header class="navbar navbar-expand navbar-dark bg-dark fixed-top shadow">
 		<div class="container">
 			<div class="navbar-brand my-1">
-				<i class="bi bi-meta text-secondary h2 align-middle me-3"></i>
+				<!-- <i class="bi bi-meta text-secondary h2 align-middle me-3"></i> -->
+				<svg class="bi text-secondary h2 mb-0 align-middle me-3"><use href="#meta"></use></svg>
 				<a class="text-light align-middle d-sm-inline d-none" href="https://github.com/italofds" target="_blank">italofds</a>
 				<span class="text-secondary align-middle d-sm-inline d-none"> / </span>
 				<a class="text-light align-middle" href="https://github.com/italofds/meta-ip-processor" target="_blank">meta-ip-processor</a>
-				<span class="badge rounded-pill text-bg-secondary align-middle ms-3" style="font-size:10pt;"><small>v1.0.0</small></span>
+				<span class="badge rounded-pill text-bg-secondary align-middle ms-3" style="font-size:10pt;"><small>v1.1.0</small></span>
 			</div>
 
 			<div class="dropdown">
@@ -52,6 +53,9 @@
 					<symbol id="sun-fill" viewBox="0 0 16 16">
 						<path d="M8 12a4 4 0 1 0 0-8 4 4 0 0 0 0 8zM8 0a.5.5 0 0 1 .5.5v2a.5.5 0 0 1-1 0v-2A.5.5 0 0 1 8 0zm0 13a.5.5 0 0 1 .5.5v2a.5.5 0 0 1-1 0v-2A.5.5 0 0 1 8 13zm8-5a.5.5 0 0 1-.5.5h-2a.5.5 0 0 1 0-1h2a.5.5 0 0 1 .5.5zM3 8a.5.5 0 0 1-.5.5h-2a.5.5 0 0 1 0-1h2A.5.5 0 0 1 3 8zm10.657-5.657a.5.5 0 0 1 0 .707l-1.414 1.415a.5.5 0 1 1-.707-.708l1.414-1.414a.5.5 0 0 1 .707 0zm-9.193 9.193a.5.5 0 0 1 0 .707L3.05 13.657a.5.5 0 0 1-.707-.707l1.414-1.414a.5.5 0 0 1 .707 0zm9.193 2.121a.5.5 0 0 1-.707 0l-1.414-1.414a.5.5 0 0 1 .707-.707l1.414 1.414a.5.5 0 0 1 0 .707zM4.464 4.465a.5.5 0 0 1-.707 0L2.343 3.05a.5.5 0 1 1 .707-.707l1.414 1.414a.5.5 0 0 1 0 .708z"/>
 					</symbol>
+					<symbol id="meta" viewBox="0 0 16 16">
+						<path fill-rule="evenodd" d="M8.217 5.243C9.145 3.988 10.171 3 11.483 3 13.96 3 16 6.153 16.001 9.907c0 2.29-.986 3.725-2.757 3.725-1.543 0-2.395-.866-3.924-3.424l-.667-1.123-.118-.197a55 55 0 0 0-.53-.877l-1.178 2.08c-1.673 2.925-2.615 3.541-3.923 3.541C1.086 13.632 0 12.217 0 9.973 0 6.388 1.995 3 4.598 3q.477-.001.924.122c.31.086.611.22.913.407.577.359 1.154.915 1.782 1.714m1.516 2.224q-.378-.614-.727-1.133L9 6.326c.845-1.305 1.543-1.954 2.372-1.954 1.723 0 3.102 2.537 3.102 5.653 0 1.188-.39 1.877-1.195 1.877-.773 0-1.142-.51-2.61-2.87zM4.846 4.756c.725.1 1.385.634 2.34 2.001A212 212 0 0 0 5.551 9.3c-1.357 2.126-1.826 2.603-2.581 2.603-.777 0-1.24-.682-1.24-1.9 0-2.602 1.298-5.264 2.846-5.264q.136 0 .27.018Z" />
+					</symbol>
 				</svg>
 			</div>
 		</div>
@@ -68,7 +72,7 @@
 					<div class="row">
 						<div class="input-group mb-2">
 							<input v-on:change="previewFile" id="inputFile" name="file" type="file" class="form-control form-control-lg" aria-label="Upload" accept=".html" required="required">
-							<button id="btnSend" class="btn btn-primary btn-lg" type="submit">Processar Arquivo!</button>
+							<button id="btnSend" class="btn btn-primary btn-lg" type="submit">Processar</button>
 						</div>
 					</div>
 				</form>
@@ -77,7 +81,7 @@
 			<a class="anchor" id="result"></a>
 
 			<div class="my-5" v-show="resultList.length > 0">
-				<ul class="nav nav-tabs mb-3" role="tablist">
+				<ul class="nav nav-tabs mb-4" role="tablist">
 					<li class="nav-item" role="presentation">
 						<button class="nav-link active" data-bs-toggle="tab" data-bs-target="#list-tab-pane" type="button" role="tab" aria-controls="list-tab-pane" aria-selected="true">Lista</button>
 					</li>
@@ -88,70 +92,77 @@
 
 				<div class="tab-content">
 					<div class="tab-pane fade show active" id="list-tab-pane" role="tabpanel" aria-labelledby="list-tab" tabindex="0">
-						<h2>Lista de Endereços IP</h2>
 
-						<p class="text-muted">Exibindo resultado do total de <strong>{{ resultList.length }}</strong> endereços IP identificados.</p>
-
-						<div class="row row-cols-lg-auto g-3 mb-3">
-							<div class="col-12">
-								<div class="input-group">
-									<span class="input-group-text" id="basic-addon1">Fuso Horário:</span>
-									<select v-model="formData.selectedTimezone" class="form-select">
-										<option v-for="item in timezoneItens" :value="item.id" :key="item.id">{{ item.text }}</option>
-									</select>
-								</div>
+						<div id="statusPanel" :class="{ 'alert mb-4': true, 'alert-warning': numIspLoaded < ispList.length, 'alert-success': numIspLoaded == ispList.length }" role="alert">
+							<h4 class="mb-3">Resultado do Processamento:</h4>
+							<hr/>
+							<div>
+								<i class="text-success bi bi-check-circle-fill me-3"></i>
+								<span>1. Processando registros: esta etapa poderá levar alguns segundos, dependendo do tamanho do arquivo e da capacidade de processamento da máquina do cliente.</span>
 							</div>
-							<div class="col-12 d-grid d-lg-block">
-								<button type="button" class="btn btn-outline-secondary position-relative" data-bs-toggle="modal" data-bs-target="#exampleModal">
-									Filtrar
-									<span v-if="isFilterDefined" class="position-absolute top-0 start-100 translate-middle p-2 bg-primary border border-light rounded-circle">
-										<span class="visually-hidden">Alert</span>
-									</span>
-								</button>
+							<div>
+								<i class="text-success bi bi-check-circle-fill me-3"></i>
+								<span>2. Foram identificados um total de <strong>{{ resultList.length }}</strong> registro(s).</span>
 							</div>
-							<div class="col-12 d-grid d-lg-block">
-								<button type="button" class="btn btn-outline-secondary" @click="exportExcel()">Exportar Excel</button>
+							<div>
+								<i v-if="numIspLoaded == ispList.length" class="text-success bi bi-check-circle-fill me-3"></i>
+								<div v-if="numIspLoaded < ispList.length" class="spinner-border spinner-border-sm me-3"><span class="visually-hidden">Loading...</span></div>
+								<span :class="{ 'opacity-50': numIspLoaded < ispList.length }">3. Consultando provedores de conexão: <strong>{{numIspLoaded}}</strong> de <strong>{{ ispList.length }}</strong>.</span>
 							</div>
 						</div>
 
-						<GMapMap ref="myMapRef" class="mt-3 mb-3" :center="mapCenter" :zoom="mapZoom" map-type-id="terrain" style="width: 100%; height: 400px" :options="mapOptions">
-							<GMapMarker :key="marker" v-for="marker in mapMarkers" :position="marker.position"/>	
-						</GMapMap>
+						<div class="card mb-4 rounded-3 shadow-sm">
+							<div class="card-header py-3">
+								<h4 class="my-0 fw-normal">Localização Aproximada dos Provedores</h4>
+							</div>
+							<div class="card-body">
+								<GMapMap ref="myMapRef" :center="mapCenter" :zoom="mapZoom" map-type-id="terrain" style="width: 100%; height: 400px" :options="mapOptions">
+									<GMapMarker :key="marker" v-for="marker in mapMarkers" :position="marker.position"/>	
+								</GMapMap>
+							</div>
+						</div>
 						
-						<div class="table-responsive mb-3 mt-3">
-							<table class="table table-striped table-hover mb-0">
-								<thead>
-									<tr>
-										<th class="text-nowrap" scope="col"></th>
-										<th class="text-nowrap" scope="col">Endereço IP</th>
-										<th class="text-nowrap text-center" scope="col">Data</th>
-										<th class="text-nowrap text-center" scope="col">Hora</th>
-										<th class="text-nowrap" scope="col">País</th>
-										<th class="text-nowrap" scope="col">UF</th>
-										<th class="text-nowrap" scope="col">Cidade</th>
-										<th class="text-nowrap" scope="col">ISP</th>
-									</tr>
-								</thead>
-								<tbody>
-									<tr v-for="(resultObj, index) in resultItens" :key="index" :class="ipQueryArray[resultObj.ipQueryIndex].status">
-										<td>
-											<div v-if="ipQueryArray[resultObj.ipQueryIndex].status == 'loading'" class="spinner-border spinner-border-sm" role="status">
-												<span class="visually-hidden">Loading...</span>
-											</div>
-											<i v-if="ipQueryArray[resultObj.ipQueryIndex].status == 'error'" class="text-danger bi bi-exclamation-diamond-fill"></i>
-											<i v-if="ipQueryArray[resultObj.ipQueryIndex].status == 'success'" class="text-success bi bi-check-circle-fill"></i>
-										</td>
-										<td class="text-nowrap">{{ printValue(resultObj.ip) }}</td>								
-										<td class="text-nowrap text-center">{{ convertDatetimeFormat(resultObj.timestamp, "DD/MM/YYYY") }}</td>
-										<td class="text-nowrap text-center">{{ convertDatetimeFormat(resultObj.timestamp, "HH:mm:ss") }}</td>
-										<td class="text-nowrap">{{ printValue(ipQueryArray[resultObj.ipQueryIndex].country) }}</td>
-										<td class="text-nowrap">{{ printValue(ipQueryArray[resultObj.ipQueryIndex].region) }}</td>
-										<td class="text-nowrap">{{ printValue(ipQueryArray[resultObj.ipQueryIndex].city) }}</td>
-										<td class="text-nowrap">{{ printValue(ipQueryArray[resultObj.ipQueryIndex].isp) }}</td>
-									</tr>
-								</tbody>
-							</table>
-						</div>
+						<div class="card mb-4 rounded-3 shadow-sm">
+							<div class="card-header py-3">
+								<h4 class="my-0 fw-normal">Lista de Endereços IP</h4>
+							</div>
+							<div class="card-body">
+								<label class="form-label">Controles</label>
+
+								<div class="row row-cols-lg-auto g-3 mb-3">
+									<div class="col-12 d-grid d-lg-block">
+										<div class="input-group">
+											<span class="input-group-text" id="basic-addon1">Fuso Horário:</span>
+											<select v-model="formData.selectedTimezone" class="form-select">
+												<option v-for="item in timezoneItens" :value="item.id" :key="item.id">{{ item.text }}</option>
+											</select>
+										</div>
+									</div>
+
+									<div class="col-12 d-grid d-lg-block">
+										<div class="btn-group" role="group">
+											<button @click="clearFilters()" type="button" class="btn btn-outline-secondary position-relative" :disabled="!isFilterDefined">
+												Limpar Filtros
+											</button>
+											<button type="button" class="btn btn-outline-secondary position-relative" data-bs-toggle="modal" data-bs-target="#exampleModal">
+												Filtrar
+												<span v-if="isFilterDefined" class="position-absolute top-0 start-100 translate-middle p-2 bg-primary border border-light rounded-circle">
+													<span class="visually-hidden">Alert</span>
+												</span>
+											</button>
+										</div>										
+									</div>
+
+									<div class="col-12 d-grid d-lg-block">
+										<button type="button" class="btn btn-outline-secondary" @click="$refs.listComponent.exportExcel()">Exportar Excel</button>
+									</div>
+								</div>
+
+								<hr/>
+								
+								<list-component ref="listComponent" :ipData="resultItens" :ispData="ispList" :timezoneData="formData.selectedTimezone"></list-component>
+							</div>
+						</div>						
 					</div>
 
 					<div class="tab-pane fade" id="charts-tab-pane" role="tabpanel" aria-labelledby="chart-tab" tabindex="0">
@@ -232,23 +243,24 @@
 import axios from 'axios';
 import moment from 'moment';
 import momentTZ from 'moment-timezone';
-import * as XLSX from 'xlsx';
 import {fileProcess} from './utils/processor';
 import darkMapStyleJSON from '../assets/dark-map-style.json'
 import '../assets/js/color-modes.js'
 import * as bootstrap from 'bootstrap';
 import ChartComponent from './components/ChartComponent.vue';
+import ListComponent from './components/ListComponent.vue';
 
 const MAX_DAYS_DIFF = 10;
 
 export default {
 	components: {
-		ChartComponent
+		ChartComponent,
+		ListComponent
 	},
 	name: 'App',
 	data() {
 		return { 
-			ipQueryArray: [],
+			ispList: [],
 			resultList: [],	
 			charts: {
 				logsByDateChart:undefined,
@@ -270,7 +282,7 @@ export default {
 			},
 			mapMarkers: [],
 			mapCenter: { lat: 0, lng: 0 },
-			mapZoom: 1,
+			mapZoom: 2,
 			mapOptions: {
 				zoomControl: true,
 				mapTypeControl: false,
@@ -278,7 +290,8 @@ export default {
 				streetViewControl: false,
 				rotateControl: false,
 				fullscreenControl: false,
-				scrollwheel: false
+				scrollwheel: false,
+				minZoom: 2
 			},
 			dataChart1: null,
 			dataChart2: null,
@@ -303,7 +316,7 @@ export default {
 				const endDate = new Date(this.filterData.finalDate);
 
 				// Encontrando o ISP correspondente
-				const ispObj = this.ipQueryArray[ipInfo.ipQueryIndex];
+				const ispObj = this.ispList[ipInfo.ispIndex];
 				if (!ispObj) return false;  // Se nenhum ISP corresponde, descarta o IP
 
 				// Verifica todas as condições de filtragem
@@ -356,6 +369,11 @@ export default {
 			}, new Set);
 
 			return uniqueOffsets.sort((a,b) => a.id - b.id);		
+		},
+		numIspLoaded: function() {
+			return this.ispList.filter(function(element){
+				return element.status == 'success';
+			}).length;
 		}
 	},
 	methods: {
@@ -402,7 +420,7 @@ export default {
 				const hour = momentTimestamp.hours();
 				hourCounts[hour] += 1;
 
-				const ispName = this.ipQueryArray[ip.ipQueryIndex].isp;
+				const ispName = this.ispList[ip.ispIndex].isp;
 				ispCounts[ispName] = (ispCounts[ispName] || 0) + 1;
 			});
 
@@ -477,14 +495,11 @@ export default {
 			this.filterData.isp = "";
 		},
 		getUniqueISPItens(attribute) {
-			return this.ipQueryArray
+			return this.ispList
 				.map((item) => item[attribute])
 				.filter(
 					(value, index, current_value) => value && current_value.indexOf(value) === index
 				);
-		},
-		printValue: function (value) {
-			return value ? value : "-";
 		},
 		convertDatetimeFormat: function (dateValue, format) {
 			if (dateValue) {
@@ -516,7 +531,7 @@ export default {
 			}
 
 			this.resultList = [];
-			this.ipQueryArray = [];
+			this.ispList = [];
 			this.mapMarkers = [];
 			var file = this.formData.selectedFile;
 
@@ -532,59 +547,66 @@ export default {
 				const reader = new FileReader();
 				reader.onload = (e) => {
 
-					this.resultList = fileProcess(e.target.result);
-					this.mountQueryList();
+					(async () => {
+						this.resultList = await fileProcess(e.target.result);
+						this.ispList = await this.generateIspList();
+
+						window.location.href='#result';
+						this.fetchData();
+					})();
+					
 				}; 
 				reader.readAsText(file);
 			}
 		},
-		mountQueryList() {
+		async generateIspList() {
+			const resultIspList = [];
+
 			for(let resultItem of this.resultList) {
 				var resultIp = resultItem.ip;
 				var resultDate = resultItem.timestamp;
 				var isRepeated = false;
-				var ipQueryIndex = undefined;
+				var ispIndex = undefined;
 
-				for (let i = 0; i < this.ipQueryArray.length; i++) {
-					let ipQueryItem = this.ipQueryArray[i];
+				for (let i = 0; i < resultIspList.length; i++) {
+					let ispItem = resultIspList[i];
 
-					if(ipQueryItem.ip === resultIp) {
-						const difference = Math.abs(new Date(ipQueryItem.timestamp) - new Date(resultDate)) / (1000 * 3600 * 24);
+					if(ispItem.ip === resultIp) {
+						const difference = Math.abs(new Date(ispItem.timestamp) - new Date(resultDate)) / (1000 * 3600 * 24);
 						if(difference <= MAX_DAYS_DIFF){
 							isRepeated = true;
-							ipQueryIndex = i;
+							ispIndex = i;
 							break;
 						}
 					}
 				}				
 
 				if(!isRepeated) {
-					let ipQueryItem = {};
-					ipQueryItem.ip = resultIp;
-					ipQueryItem.timestamp = resultDate;
-					ipQueryItem.country = "";
-					ipQueryItem.region = "";
-					ipQueryItem.city = "";
-					ipQueryItem.isp = "";
-					ipQueryItem.status = "loading";					
+					let ispItem = {};
+					ispItem.ip = resultIp;
+					ispItem.timestamp = resultDate;
+					ispItem.country = "";
+					ispItem.region = "";
+					ispItem.city = "";
+					ispItem.isp = "NÃO CONSULTADO";
+					ispItem.status = "loading";					
 
-					this.ipQueryArray.push(ipQueryItem);	
-					ipQueryIndex = this.ipQueryArray.length-1;
-					resultItem.ipQueryIndex = ipQueryIndex;							
+					resultIspList.push(ispItem);	
+					ispIndex = resultIspList.length-1;
+					resultItem.ispIndex = ispIndex;							
 					
 				} else {
-					resultItem.ipQueryIndex = ipQueryIndex;
+					resultItem.ispIndex = ispIndex;
 				}				
 			}
 
-			window.location.href='#result';
-			this.fetchData();
+			return resultIspList;
 		},
 		async fetchData() {
 			var bounds = new window.google.maps.LatLngBounds();
 			var mapMarkersSet = new Set();
 
-			for(let item of this.ipQueryArray){
+			for(let item of this.ispList){
 				try {
 					var url  = process.env.VUE_APP_IP_API_URL + item.ip + "/" + this.convertDatetimeFormat(item.timestamp, "YYYY-MM-DD");
 					const response = await axios.get(url);
@@ -624,27 +646,6 @@ export default {
 					console.error('Ocorreu um erro durante a busca dos dados: ', error);
 				}	
 			}	
-		},
-		exportExcel() {
-			var exportDataList = [];
-
-			for(let resultItem of this.resultList) {
-				var exportData = {
-					"Endereço IP" : this.printValue(resultItem.ip),
-					"Data" : this.convertDatetimeFormat(resultItem.timestamp, "DD/MM/YYYY"),
-					"Hora" : this.convertDatetimeFormat(resultItem.timestamp, "HH:mm:ss"),
-					"País" : this.printValue(this.ipQueryArray[resultItem.ipQueryIndex].country), 
-					"UF" : this.printValue(this.ipQueryArray[resultItem.ipQueryIndex].region), 
-					"Cidade" : this.printValue(this.ipQueryArray[resultItem.ipQueryIndex].city), 
-					"ISP" : this.printValue(this.ipQueryArray[resultItem.ipQueryIndex].isp)
-				};
-				exportDataList.push(exportData);
-			}			
-
-			var worksheet = XLSX.utils.json_to_sheet(exportDataList);					
-			var workbook = XLSX.utils.book_new();
-			XLSX.utils.book_append_sheet(workbook, worksheet, "Dados IP");
-			XLSX.writeFile(workbook, "meta-ip-result.xlsx");
 		}
 	},
 	setup() {
