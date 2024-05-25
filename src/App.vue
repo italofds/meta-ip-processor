@@ -92,24 +92,7 @@
 
 				<div class="tab-content">
 					<div class="tab-pane fade show active" id="list-tab-pane" role="tabpanel" aria-labelledby="list-tab" tabindex="0">
-
-						<div id="statusPanel" :class="{ 'alert mb-4': true, 'alert-warning': numIspLoaded < ispList.length, 'alert-success': numIspLoaded == ispList.length }" role="alert">
-							<h4 class="mb-3">Resultado do Processamento:</h4>
-							<hr/>
-							<div class="d-flex flex-row mb-2">
-								<i class="text-success bi bi-check-circle-fill me-3"></i>
-								<span><strong>1.</strong> Processando registros: esta etapa poderá levar alguns segundos, dependendo do tamanho do arquivo e da capacidade de processamento da máquina do cliente.</span>
-							</div>
-							<div class="d-flex flex-row mb-2">
-								<i class="d-inline-block text-success bi bi-check-circle-fill me-3"></i>
-								<span><strong>2.</strong> Foram identificados um total de <strong>{{ resultList.length }}</strong> registro(s).</span>
-							</div>
-							<div class="d-flex flex-row">
-								<i v-if="numIspLoaded == ispList.length" class="text-success bi bi-check-circle-fill me-3"></i>
-								<div v-if="numIspLoaded < ispList.length" class="spinner-border spinner-border-sm me-3"><span class="visually-hidden">Loading...</span></div>
-								<span :class="{ 'opacity-50': numIspLoaded < ispList.length }"><strong>3.</strong> Consultando provedores de conexão: <strong>{{numIspLoaded}}</strong> de <strong>{{ ispList.length }}</strong>.</span>
-							</div>
-						</div>
+						<result-alert-component :ipData="resultItens" :ispData="ispList"></result-alert-component>
 
 						<div class="card mb-4 rounded-3 shadow-sm">
 							<div class="card-header py-3">
@@ -249,13 +232,15 @@ import '../assets/js/color-modes.js'
 import * as bootstrap from 'bootstrap';
 import ChartComponent from './components/ChartComponent.vue';
 import ListComponent from './components/ListComponent.vue';
+import ResultAlertComponent from './components/ResultAlertComponent.vue';
 
 const MAX_DAYS_DIFF = 10;
 
 export default {
 	components: {
 		ChartComponent,
-		ListComponent
+		ListComponent,
+		ResultAlertComponent
 	},
 	name: 'App',
 	data() {
@@ -369,11 +354,6 @@ export default {
 			}, new Set);
 
 			return uniqueOffsets.sort((a,b) => a.id - b.id);		
-		},
-		numIspLoaded: function() {
-			return this.ispList.filter(function(element){
-				return element.status == 'success';
-			}).length;
 		}
 	},
 	methods: {

@@ -10,7 +10,7 @@
 					<th class="text-nowrap" scope="col">País</th>
 					<th class="text-nowrap" scope="col">UF</th>
 					<th class="text-nowrap" scope="col">Cidade</th>
-					<th class="text-nowrap" scope="col">ISP</th>
+					<th class="text-nowrap" scope="col">Provedor</th>
 				</tr>
 			</thead>
 			<tbody>
@@ -19,7 +19,7 @@
 						<div v-if="ispData[resultObj.ispIndex].status == 'loading'" class="spinner-border spinner-border-sm" role="status">
 							<span class="visually-hidden">Loading...</span>
 						</div>
-						<i v-if="ispData[resultObj.ispIndex].status == 'error'" class="text-danger bi bi-exclamation-diamond-fill"></i>
+						<i v-if="ispData[resultObj.ispIndex].status == 'error'" class="text-danger bi bi-x-circle-fill"></i>
 						<i v-if="ispData[resultObj.ispIndex].status == 'success'" class="text-success bi bi-check-circle-fill"></i>
 					</td>
 					<td class="text-nowrap">{{ printValue(resultObj.ip) }}</td>								
