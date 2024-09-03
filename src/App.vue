@@ -173,11 +173,19 @@
 					<div class="row g-3">
 						<div class="col-md-6">
 							<label for="inputInitialDate" class="form-label">Data Inicial</label>
-							<input v-model="filterData.initialDate" type="datetime-local" class="form-control" id="inputInitialDate">
+							<input v-model="filterData.initialDate" type="date" class="form-control" id="inputInitialDate">
 						</div>
 						<div class="col-md-6">
 							<label for="inputFinalDate" class="form-label">Data Final</label>
-							<input v-model="filterData.finalDate" type="datetime-local" class="form-control" id="inputFinalDate">
+							<input v-model="filterData.finalDate" type="date" class="form-control" id="inputFinalDate">
+						</div>
+						<div class="col-md-6">
+							<label for="inputInitialTime" class="form-label">Hora Inicial</label>
+							<input v-model="filterData.initialTime" type="time" class="form-control" id="inputInitialTime" >
+						</div>
+						<div class="col-md-6">
+							<label for="inputFinalTime" class="form-label">Hora Final</label>
+							<input v-model="filterData.finalTime" type="time" class="form-control" id="inputFinalTime">
 						</div>
 						<div class="col-md-6">
 							<label for="selectCountry" class="form-label">País</label>
@@ -260,6 +268,8 @@ export default {
 			filterData: {
 				initialDate: '',
 				finalDate: '',
+				initialTime: '',
+				finalTime: '',
 				country: '',
 				region: '',
 				city: '',
@@ -288,6 +298,8 @@ export default {
 		isFilterDefined: function() {
 			return this.filterData.initialDate !== "" ||
 				this.filterData.finalDate !== "" ||
+				this.filterData.initialTime !== "" ||
+				this.filterData.finalTime !== "" ||
 				this.filterData.country !== "" ||
 				this.filterData.region !== "" ||
 				this.filterData.city !== "" ||
@@ -295,18 +307,24 @@ export default {
 		},
 		resultItens: function() {
 			return this.resultList.filter(ipInfo => {
-				// Convertendo o timestamp para objeto Date para comparação
-				const ipDate = new Date(ipInfo.timestamp);
-				const startDate = new Date(this.filterData.initialDate);
-				const endDate = new Date(this.filterData.finalDate);
+				// Convert data and time for comparison
+				const ipDate = moment.utc(ipInfo.timestamp).utcOffset(this.formData.selectedTimezone);
+				const initialDate =  moment(this.filterData.initialDate).utcOffset(this.formData.selectedTimezone, true);
+				const finalDate =  moment(this.filterData.finalDate).utcOffset(this.formData.selectedTimezone, true);
 
-				// Encontrando o ISP correspondente
+				const ipTime = moment(`${ipDate.hour()}:${ipDate.minute()}`, "HH:mm").utcOffset(this.formData.selectedTimezone, true);
+				const initialTime = moment(this.filterData.initialTime, "HH:mm").utcOffset(this.formData.selectedTimezone, true);
+				const finalTime = moment(this.filterData.finalTime, "HH:mm").utcOffset(this.formData.selectedTimezone, true);
+
+				// Finding correspondent ISP
 				const ispObj = this.ispList[ipInfo.ispIndex];
 				if (!ispObj) return false;  // Se nenhum ISP corresponde, descarta o IP
 
-				// Verifica todas as condições de filtragem
-				return (this.filterData.initialDate === "" || ipDate >= startDate) && 
-					(this.filterData.finalDate === "" || ipDate <= endDate) && 
+				// Verify all the filters
+				return (this.filterData.initialDate === "" || ipDate.isSameOrAfter(initialDate, 'day')) &&
+					(this.filterData.finalDate === "" || ipDate.isSameOrBefore(finalDate, 'day')) &&
+					(this.filterData.initialTime === "" || ipTime.isSameOrAfter(initialTime, 'minute')) &&
+					(this.filterData.finalTime === "" || ipTime.isSameOrBefore(finalTime, 'minute')) &&
 					(this.filterData.isp === "" || ispObj.isp === this.filterData.isp) &&
 					(this.filterData.country === "" || ispObj.country === this.filterData.country) &&
 					(this.filterData.region === "" || ispObj.region === this.filterData.region) &&
@@ -467,8 +485,10 @@ export default {
 			}
 		},
 		clearFilters() {
-			this.filterData.finalDate = "";
-			this.filterData.initialDate = "";			
+			this.filterData.initialDate = "";
+			this.filterData.finalDate = "";			
+			this.filterData.initialTime = "";
+			this.filterData.finalTime = "";		
 			this.filterData.country = "";
 			this.filterData.region = "";
 			this.filterData.city = "";
