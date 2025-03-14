@@ -7,7 +7,7 @@
 				<a class="text-light align-middle d-sm-inline d-none" href="https://github.com/italofds" target="_blank">italofds</a>
 				<span class="text-secondary align-middle d-sm-inline d-none"> / </span>
 				<a class="text-light align-middle" href="https://github.com/italofds/meta-ip-processor" target="_blank">meta-ip-processor</a>
-				<span class="badge rounded-pill text-bg-secondary align-middle ms-3" style="font-size:10pt;"><small>v1.2.0</small></span>
+				<span class="badge rounded-pill text-bg-secondary align-middle ms-3" style="font-size:10pt;"><small>v1.3.0</small></span>
 			</div>
 
 			<div class="dropdown">

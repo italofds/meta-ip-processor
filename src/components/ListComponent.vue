@@ -5,6 +5,7 @@
 				<tr>
 					<th class="text-nowrap" scope="col">#</th>
 					<th class="text-nowrap" scope="col">Endereço IP</th>
+					<th class="text-nowrap" scope="col">Porta Lógica</th>
 					<th class="text-nowrap text-center" scope="col">Data</th>
 					<th class="text-nowrap text-center" scope="col">Hora</th>
 					<th class="text-nowrap" scope="col">País</th>
@@ -22,7 +23,8 @@
 						<i v-if="ispData[resultObj.ispIndex].status == 'error'" class="text-danger bi bi-x-circle-fill"></i>
 						<i v-if="ispData[resultObj.ispIndex].status == 'success'" class="text-success bi bi-check-circle-fill"></i>
 					</td>
-					<td class="text-nowrap">{{ printValue(resultObj.ip) }}</td>								
+					<td class="text-nowrap">{{ printValue(resultObj.ip) }}</td>
+					<td class="text-nowrap">{{ printValue(resultObj.port) }}</td>
 					<td class="text-nowrap text-center">{{ convertDatetimeFormat(resultObj.timestamp, "DD/MM/YYYY") }}</td>
 					<td class="text-nowrap text-center">{{ convertDatetimeFormat(resultObj.timestamp, "HH:mm:ss") }}</td>
 					<td class="text-nowrap">{{ printValue(ispData[resultObj.ispIndex].country) }}</td>
@@ -140,6 +142,7 @@ export default {
 			for(let resultItem of this.ipData) {
 				var exportData = {
 					"Endereço IP" : this.printValue(resultItem.ip),
+					"Porta Lógica" : this.printValue(resultItem.port),
 					"Data" : this.convertDatetimeFormat(resultItem.timestamp, "DD/MM/YYYY"),
 					"Hora" : this.convertDatetimeFormat(resultItem.timestamp, "HH:mm:ss"),
 					"País" : this.printValue(this.ispData[resultItem.ispIndex].country), 
