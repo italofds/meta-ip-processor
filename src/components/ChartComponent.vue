@@ -23,7 +23,7 @@ export default {
         },
         title: {
             type: String,
-            default: 'Título'
+            default: 'Title'
         }
     },
     data() {

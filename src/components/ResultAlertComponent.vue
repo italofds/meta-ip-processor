@@ -1,6 +1,6 @@
 <template>
 	<div id="statusPanel" :class="{ 'alert mb-4 ': true, 'alert-warning': isWarningAlert, 'alert-success': isSuccessAlert, 'alert-danger': isErrorAlert }" role="alert">
-		<h4 class="mb-3">Resultado do Processamento:</h4>
+		<h4 class="mb-3">{{$t('resultAlertComponent.title')}}</h4>
 		<hr/>
 		
 		<div v-for="(alertObj, index) in alertList" :key="index"  class="d-flex flex-row mb-2">
@@ -42,12 +42,12 @@ export default {
 		alertList: function () {
 			var alertList = [
 			{
-				status:'success', 
-				text:'Processando registros: esta etapa poderá levar alguns segundos, dependendo do tamanho do arquivo e da capacidade de processamento da máquina do cliente.'
+				status:'success',
+				text:this.$t('resultAlertComponent.processing')
 			},
 			{
 				status:'success',
-				text:`Foram identificados um total de <strong>${ this.ipData.length }</strong> registro(s) de conexão.`
+				text:this.$t('resultAlertComponent.foundTotal', { total: this.ipData.length })
 			}
 			];
 			
@@ -55,7 +55,7 @@ export default {
 				alertList.push(
 				{
 					status: 'loading',
-					text: `Consultando provedores de conexão dos endereços IP diferentes: <strong>${ this.successCount }</strong> de <strong>${ this.ispData.length }</strong>.`
+					text: this.$t('resultAlertComponent.checkingProviders', { success: this.successCount, total: this.ispData.length })
 				}
 				);
 				
@@ -65,7 +65,7 @@ export default {
 					alertList.push(
 					{
 						status: 'success',
-						text: `Todos os provedores de conexão foram carregados.`
+						text: this.$t('resultAlertComponent.allProvidersLoaded')
 					}
 					);
 					
@@ -73,7 +73,7 @@ export default {
 					alertList.push(
 					{
 						status: 'error',
-						text: 'Não foi possível consultar os provedores de conexão.'
+						text: this.$t('resultAlertComponent.couldNotCheckProviders')
 					}
 					);
 					
@@ -81,13 +81,13 @@ export default {
 					alertList.push(
 					{
 						status: 'warning',
-						text: `Consultando provedores de conexão dos endereços IP diferentes: <strong>${ this.successCount }</strong> de <strong>${ this.ispData.length }</strong>.`
+						text: this.$t('resultAlertComponent.checkingProviders', { success: this.successCount, total: this.ispData.length })
 					}
 					);
 					alertList.push(
 					{
 						status: 'error',
-						text: `Ocorreu um erro ao consultar <strong>${ this.errorCount }</strong> endereço(s) IP.`
+						text: this.$t('resultAlertComponent.errorChecking', { errorCount: this.errorCount })
 					}
 					);
 				}

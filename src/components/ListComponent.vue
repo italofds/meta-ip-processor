@@ -4,14 +4,14 @@
 			<thead>
 				<tr>
 					<th class="text-nowrap" scope="col">#</th>
-					<th class="text-nowrap" scope="col">Endereço IP</th>
-					<th class="text-nowrap" scope="col">Porta Lógica</th>
-					<th class="text-nowrap text-center" scope="col">Data</th>
-					<th class="text-nowrap text-center" scope="col">Hora</th>
-					<th class="text-nowrap" scope="col">País</th>
-					<th class="text-nowrap" scope="col">UF</th>
-					<th class="text-nowrap" scope="col">Cidade</th>
-					<th class="text-nowrap" scope="col">Provedor</th>
+					<th class="text-nowrap" scope="col">{{ $t('listComponent.ipAddress') }}</th>
+					<th class="text-nowrap" scope="col">{{ $t('listComponent.logicalPort') }}</th>
+					<th class="text-nowrap text-center" scope="col">{{ $t('listComponent.date') }}</th>
+					<th class="text-nowrap text-center" scope="col">{{ $t('listComponent.time') }}</th>
+					<th class="text-nowrap" scope="col">{{ $t('listComponent.country') }}</th>
+					<th class="text-nowrap" scope="col">{{ $t('listComponent.region') }}</th>
+					<th class="text-nowrap" scope="col">{{ $t('listComponent.city') }}</th>
+					<th class="text-nowrap" scope="col">{{ $t('listComponent.provider') }}</th>
 				</tr>
 			</thead>
 			<tbody>
@@ -36,7 +36,7 @@
 		</table>
 	</div>
 
-	<p class="text-center">Exibindo registros do {{firstVisibleItem}} ao {{lastVisibleItem}}.</p>
+	<p class="text-center">{{ $t('listComponent.displayingRecords', { first: firstVisibleItem, last: lastVisibleItem }) }}</p>
 
 	<div class="d-flex justify-content-center">
 		<div class="row row-cols-lg-auto g-3 mb-3">
@@ -54,7 +54,7 @@
 
 			<div class="col-12 d-grid d-lg-block">
 				<div class="input-group">
-					<div class="input-group-text" id="btnGroupAddon">Nº Página:</div>
+					<div class="input-group-text" id="btnGroupAddon">{{ $t('listComponent.pageNumber') }}</div>
 					<input v-model="currentPage" type="number" class="form-control text-center" step="1" min="1" :max="maxPages" aria-label="List Page" aria-describedby="List Page">
 				</div>
 			</div>
@@ -140,22 +140,21 @@ export default {
 			var exportDataList = [];
 
 			for(let resultItem of this.ipData) {
-				var exportData = {
-					"Endereço IP" : this.printValue(resultItem.ip),
-					"Porta Lógica" : this.printValue(resultItem.port),
-					"Data" : this.convertDatetimeFormat(resultItem.timestamp, "DD/MM/YYYY"),
-					"Hora" : this.convertDatetimeFormat(resultItem.timestamp, "HH:mm:ss"),
-					"País" : this.printValue(this.ispData[resultItem.ispIndex].country), 
-					"UF" : this.printValue(this.ispData[resultItem.ispIndex].region), 
-					"Cidade" : this.printValue(this.ispData[resultItem.ispIndex].city), 
-					"ISP" : this.printValue(this.ispData[resultItem.ispIndex].isp)
-				};
+				var exportData = {};
+				exportData[this.$t('listComponent.ipAddress')] = this.printValue(resultItem.ip);
+				exportData[this.$t('listComponent.logicalPort')] = this.printValue(resultItem.port);
+				exportData[this.$t('listComponent.date')] = this.convertDatetimeFormat(resultItem.timestamp, "DD/MM/YYYY");
+				exportData[this.$t('listComponent.time')] = this.convertDatetimeFormat(resultItem.timestamp, "HH:mm:ss");
+				exportData[this.$t('listComponent.country')] = this.printValue(this.ispData[resultItem.ispIndex].country);
+				exportData[this.$t('listComponent.region')] = this.printValue(this.ispData[resultItem.ispIndex].region);
+				exportData[this.$t('listComponent.city')] = this.printValue(this.ispData[resultItem.ispIndex].city);
+				exportData[this.$t('listComponent.provider')] = this.printValue(this.ispData[resultItem.ispIndex].isp);
 				exportDataList.push(exportData);
 			}			
 
 			var worksheet = XLSX.utils.json_to_sheet(exportDataList);					
 			var workbook = XLSX.utils.book_new();
-			XLSX.utils.book_append_sheet(workbook, worksheet, "Dados IP");
+			XLSX.utils.book_append_sheet(workbook, worksheet, this.$t('listComponent.sheetName'));
 			XLSX.writeFile(workbook, "meta-ip-result.xlsx");
 		},
 		previewsPage() {
